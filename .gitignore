@@ -1,0 +1,47 @@
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Optional npm cache directory
+.npm
+
+# Debugging
+.vscode/
+.idea/
+
+# Coverage reports
+coverage/
+
+# Build output
+dist/
+build/
+
+# PM2 logs
+pids/
+*.pid
+*.seed
+
+# Typescript cache (if using TS)
+*.tsbuildinfo
+
+# Temporary files
+tmp/
+temp/
+
+# Others
+*.swp
+*.swo

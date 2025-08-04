@@ -21,7 +21,8 @@
     "express": "^5.1.0",
     "express-winston": "^4.2.0",
     "jsonwebtoken": "^9.0.2",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "zod": "^4.0.14"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

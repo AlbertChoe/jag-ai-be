@@ -13,3 +13,22 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
     next(err);
   }
 };
+
+export const register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { username, password } = req.body;
+    const { token, user } = await authService.register(username, password);
+    res.status(201).json({ token, user });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getSelf = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const info = await authService.getUser(req.user!.userId);
+    res.json({ user: info });
+  } catch (err) {
+    next(err);
+  }
+};

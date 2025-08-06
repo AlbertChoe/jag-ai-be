@@ -4,16 +4,121 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
 }
 
+enum Role {
+  PETANI
+  PAKAR
+}
 
 model User {
-  id            String   @id @default(uuid())
-  username      String   @unique
-  passwordHash  String   @map("password_hash")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  userId      Int                  @id @default(autoincrement()) @map("user_id")
+  name        String               @map("name")
+  phoneNumber String?              @unique @map("phone_number")
+  email       String?              @unique @map("email")
+  passwordHash String              @map("password_hash")
+   role         Role      @default(PETANI) @map("role")
+  location    String?              @map("location")
+  createdAt   DateTime             @default(now()) @map("created_at")
+
+  lahan              Lahan[]            @relation("UserLahan")
+  penyakitDeteksi    PenyakitDeteksi[]  @relation("UserPenyakit")
+  konsultasiAsUser   Konsultasi[]       @relation("Konsultasi_User")
+  konsultasiAsPakar  Konsultasi[]       @relation("Konsultasi_Pakar")
+  notifikasiCuaca    NotifikasiCuaca[]  @relation("UserNotifikasi")
+  healthCheck        HealthCheck[]      @relation("UserHealthCheck")
+
+  @@map("users")
+}
+
+model Lahan {
+  lahanId    Int               @id @default(autoincrement()) @map("lahan_id")
+  userIdOwner     Int               @map("user_id_owner")
+  latitude   Float             @map("latitude")
+  longitude  Float             @map("longitude")
+  description String?          @map("description")
+  createdAt  DateTime          @default(now()) @map("created_at")
+
+  user       User              @relation("UserLahan", fields: [userIdOwner], references: [userId])
+  analisis   AnalisisLahan[]   @relation("LahanAnalisis")
+
+  @@map("lahan")
+}
+
+model AnalisisLahan {
+  id                       Int     @id @default(autoincrement()) @map("id")
+  lahanId                  Int     @map("lahan_id")
+  ndviScore                Float?  @map("ndvi_score")
+  ndwiScore                Float?  @map("ndwi_score")
+  fertilityScore           Float?  @map("fertility_score")
+  rekomendasiPerawatan     String? @map("rekomendasi_perawatan")
+  kebutuhanAirHarianLiter  Int?    @map("kebutuhan_air_harian_liter")
+  cuacaPrediksi            String? @map("cuaca_prediksi")
+  createdAt                DateTime @default(now()) @map("created_at")
+
+  lahan                    Lahan   @relation("LahanAnalisis", fields: [lahanId], references: [lahanId])
+
+  @@map("analisis_lahan")
+}
+
+model PenyakitDeteksi {
+  id                 Int      @id @default(autoincrement()) @map("id")
+  userId              Int      @map("user_id")
+  imageUrl           String   @map("image_url")
+  penyakit           String   @map("penyakit")
+  tingkatKeparahan   String   @map("tingkat_keparahan")
+  tindakanPenanganan String   @map("tindakan_penanganan")
+  daftarBelanja      Json     @map("daftar_belanja")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  user               User     @relation("UserPenyakit", fields: [userId], references: [userId])
+
+  @@map("penyakit_deteksi")
+}
+
+model Konsultasi {
+  konsultasiId   Int      @id @default(autoincrement()) @map("konsultasi_id")
+  userId         Int      @map("user_id")
+  pakarId        Int      @map("pakar_id")
+  topik          String   @map("topik")
+  metode         String   @map("metode")
+  status         String   @default("terjadwal") @map("status")
+  waktuKonsultasi DateTime? @map("waktu_konsultasi")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user           User     @relation("Konsultasi_User", fields: [userId], references: [userId])
+  pakar          User     @relation("Konsultasi_Pakar", fields: [pakarId], references: [userId])
+
+  @@map("konsultasi")
+}
+
+model NotifikasiCuaca {
+  id               Int      @id @default(autoincrement()) @map("id")
+  userId           Int      @map("user_id")
+  tanggal          DateTime @map("tanggal")
+  suhuHarian       Float    @map("suhu_harian")
+  curahHujanMm     Float    @map("curah_hujan_mm")
+  kelembapan       Float    @map("kelembapan")
+  rekomendasiKegiatan String @map("rekomendasi_kegiatan")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  user             User     @relation("UserNotifikasi", fields: [userId], references: [userId])
+
+  @@map("notifikasi_cuaca")
+}
+
+model HealthCheck {
+  id          Int      @id @default(autoincrement()) @map("id")
+  userId      Int      @map("user_id")
+  imageUrl    String?  @map("image_url")
+  analisis    String?  @map("analisis")
+  rekomendasi String?  @map("rekomendasi")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user        User     @relation("UserHealthCheck", fields: [userId], references: [userId])
+
+  @@map("health_check")
 }

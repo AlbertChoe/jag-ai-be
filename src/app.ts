@@ -3,6 +3,7 @@ import { json, urlencoded } from 'body-parser';
 import expressWinston from 'express-winston';
 import logger from './config/logger';
 import authRouter from './routes/auth';
+import userRouter from './routes/user';
 import healthRouter from './routes/health';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -21,6 +22,7 @@ app.use(
 
 // routes
 app.use('/auth', authRouter);
+app.use('/users', userRouter);
 app.use('/health', healthRouter);
 
 app.use((_req, res) => {

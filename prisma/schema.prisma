@@ -20,7 +20,7 @@ model User {
   phoneNumber String?              @unique @map("phone_number")
   email       String?              @unique @map("email")
   passwordHash String              @map("password_hash")
-   role         Role      @default(PETANI) @map("role")
+  role         Role      @default(PETANI) @map("role")
   location    String?              @map("location")
   createdAt   DateTime             @default(now()) @map("created_at")
 

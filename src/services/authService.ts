@@ -1,8 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { Role } from '../generated/prisma';
-
+import { Role } from '@prisma/client';
 export class AuthService {
   constructor(private db: PrismaClient) {}
 
@@ -16,30 +15,43 @@ export class AuthService {
     user: {
       userId: number;
       name: string;
-      email: string;
-      role: string;
-      phoneNumber?: string;
-      location?: string;
-      createdAt: Date;
+      role: Role;
     };
   }> {
     const exists = await this.db.user.findUnique({ where: { email } });
     if (exists) throw new Error('Email already in use');
 
     const passwordHash = await bcrypt.hash(password, 10);
+
     const user = await this.db.user.create({
       data: { name, email, passwordHash, role },
+      select: {
+        userId: true,
+        name: true,
+        role: true,
+      },
     });
 
-    const token = jwt.sign({ userId: user.userId, role: user.role }, process.env.JWT_SECRET!, {
-      expiresIn: '1d',
-    });
-    delete user.passwordHash;
+    const token = jwt.sign(
+      { userId: user.userId, role: user.role },
+      process.env.JWT_SECRET as string,
+      { expiresIn: '1d' },
+    );
 
     return { token, user };
   }
 
-  async login(email: string, password: string): Promise<{ token: string }> {
+  async login(
+    email: string,
+    password: string,
+  ): Promise<{
+    token: string;
+    user: {
+      userId: number;
+      name: string;
+      role: Role;
+    };
+  }> {
     const user = await this.db.user.findUnique({ where: { email } });
     if (!user) throw new Error('Invalid credentials');
 
@@ -50,6 +62,12 @@ export class AuthService {
       expiresIn: '1d',
     });
 
-    return { token };
+    const safeUser = {
+      userId: user.userId,
+      name: user.name,
+      role: user.role,
+    };
+
+    return { token, user: safeUser };
   }
 }

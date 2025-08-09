@@ -6,11 +6,20 @@ import authRouter from './routes/auth';
 import userRouter from './routes/user';
 import healthRouter from './routes/health';
 import { errorHandler } from './middleware/errorHandler';
+import cors from 'cors';
 
 const app = express();
 
 app.use(json());
 app.use(urlencoded({ extended: false }));
+
+app.use(
+  cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }),
+);
 
 app.use(
   expressWinston.logger({
@@ -21,9 +30,9 @@ app.use(
 );
 
 // routes
-app.use('/auth', authRouter);
-app.use('/users', userRouter);
-app.use('/health', healthRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/users', userRouter);
+app.use('/api/health', healthRouter);
 
 app.use((_req, res) => {
   res.status(404).json({ message: 'Route not found' });

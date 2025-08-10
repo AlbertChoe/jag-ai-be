@@ -15,7 +15,7 @@ app.use(urlencoded({ extended: false }));
 
 app.use(
   cors({
-    origin: '*',
+    origin: ['http://localhost:3000/', 'https://jag-ai-fe.vercel.app/'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   }),
